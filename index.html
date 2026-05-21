@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login | AI Answer Evaluator</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: Arial, sans-serif;
+}
+
+body{
+    background: linear-gradient(to right, #667eea, #764ba2);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+/* LOGIN CARD */
+.login-card{
+    width:320px;
+    padding:30px;
+    border-radius:10px;
+    background:white;
+    text-align:center;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+h1{
+    margin-bottom:10px;
+    color:#333;
+}
+
+p{
+    margin-bottom:15px;
+    color:#555;
+}
+
+/* Inputs */
+input{
+    width:100%;
+    padding:10px;
+    margin:10px 0;
+    border-radius:5px;
+    border:1px solid #ccc;
+    outline:none;
+}
+
+/* Button */
+button{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    border:none;
+    border-radius:5px;
+    background:#667eea;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#5a67d8;
+}
+
+.signup a{
+    color:#667eea;
+    text-decoration:none;
+}
+
+#msg{
+    margin-top:10px;
+    font-weight:bold;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="login-card">
+    <h1>AI Evaluator</h1>
+    <p>Login to continue</p>
+
+    <input type="text" id="Email-id" placeholder="Email-id">
+    <input type="password" id="password" placeholder="Password">
+
+    <button onclick="login()">Login</button>
+
+    <p class="signup">
+        New user? <a href="signup.html">Create Account</a>
+    </p>
+
+    <p id="msg"></p>
+</div>
+
+<script>
+function login(){
+    const user=document.getElementById("Email-id").value;
+    const pass=document.getElementById("password").value;
+    const msg=document.getElementById("msg");
+
+    const users=JSON.parse(localStorage.getItem("users"))||[];
+
+    const validUser=users.find(
+        u=>u.username===user && u.password===pass
+    );
+
+    if(validUser){
+        msg.style.color="green";
+        msg.innerText="Login Successful";
+
+        setTimeout(()=>{
+            window.location.href="correction.html";
+        },1000);
+    }else{
+        msg.style.color="red";
+        msg.innerText="Invalid username or password";
+    }
+}
+</script>
+
+</body>
+</html>

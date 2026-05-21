@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Smart Answer Evaluator</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        overflow-x: hidden;
+        background: #0f2027;
+        color: white;
+    }
+
+    body::before {
+        content: "";
+        position: fixed;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at 30% 30%, #00f5ff, transparent 40%),
+                    radial-gradient(circle at 70% 70%, #ff00ff, transparent 40%),
+                    radial-gradient(circle at 50% 50%, #00ff99, transparent 40%);
+        animation: moveBackground 18s linear infinite;
+        z-index: -1;
+    }
+
+    @keyframes moveBackground {
+        0% { transform: translate(0,0) rotate(0deg); }
+        50% { transform: translate(-25%, -25%) rotate(180deg); }
+        100% { transform: translate(0,0) rotate(360deg); }
+    }
+
+    .container {
+        width: 600px;
+        padding: 30px;
+        border-radius: 20px;
+        margin: 60px auto;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.2);
+        box-shadow: 0 0 40px rgba(0,255,255,0.3);
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    label {
+        display: block;
+        margin-top: 15px;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    select, input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        border: none;
+        outline: none;
+        background: rgba(255,255,255,0.15);
+        color: rgba(255, 255, 255, 0.973);
+    }
+
+    input[type="file"] {
+        padding: 8px;
+    }
+
+    .marks {
+        text-align: right;
+        margin-top: 5px;
+        font-weight: bold;
+    }
+
+    button {
+        display: block;
+        width: 200px;
+        margin: 25px auto;
+        padding: 12px;
+        border-radius: 10px;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.932);
+        background: linear-gradient(45deg, #00f5ff, #ff00ff);
+        transition: 0.4s;
+    }
+
+    button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 20px #00f5ff;
+    }
+
+    .result-box {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 15px;
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        display: none;
+    }
+
+
+   
+select option {
+  background-color: black !important;
+  color: white !important;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>AI Smart Answer Evaluator</h1>
+
+    <!-- Question Number Dropdown -->
+    <label>Select Model Paper:</label>
+    
+  <select id="modelDropdown" onchange="showSelectedModel()">
+    <option value="">-- Select Model Paper --</option>
+    <option value="model1">Model 1 Question Paper</option>
+    <option value="model2">Model 2 Question Paper</option>
+    
+  </select>
+  
+  <div class="output" id="result"></div>
+
+    
+
+    <div class="marks">Maximum Marks: 100</div>
+
+    <!-- PDF Upload -->
+    <label>Upload Student Answer (PDF):</label>
+    <input type="file" id="pdfUpload" accept="application/pdf">
+
+    <button onclick="evaluateAnswer()">Evaluate Answer</button>
+
+    <div class="result-box" id="resultBox">
+        <p id="similarity"></p>
+        <p id="marks"></p>
+        <p id="feedback"></p>
+    </div>
+</div>
+
+<script>
+
+    function showSelectedModel() {
+      const dropdown = document.getElementById("modelDropdown");
+      const value = dropdown.value;
+      const result = document.getElementById("result");
+
+      if (value === "model1") {
+        result.innerHTML = "You selected Model 1 Paper";
+      } 
+      else if (value === "model2") {
+        result.innerHTML = "You selected Model 2 Paper";
+      } 
+      else if (value === "model3") {
+        result.innerHTML = "You selected Model 3 Paper";
+      } 
+      else {
+        result.innerHTML = "";
+      }
+    }
+    
+  
+
+function loadQuestion() {
+    
+    if (qNo) {
+        document.getElementById("questionText").value = questions[qNo].question;
+    } else {
+        document.getElementById("questionText").value = "";
+    }
+}
+
+function evaluateAnswer() {
+
+    const fileInput = document.getElementById("pdfUpload");
+
+    if (fileInput.files.length === 0) {
+        alert("Please upload PDF");
+        return;
+    }
+
+    function getFeedback(percentage) {
+    if (percentage >= 90) {
+        return "Excellent";
+    } else if (percentage >= 70) {
+        return "Good";
+    } else if (percentage >= 50) {
+        return "Average";
+    } else {
+        return "Poor";
+    }
+}
+
+    const file = fileInput.files[0];
+
+    let formData = new FormData();
+    formData.append("file", file);
+
+    fetch("https://pyrenocarpic-domesticable-carma.ngrok-free.dev/evaluate",{
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        document.getElementById("similarity").innerText =
+            "Percentage: " + data.percentage + "%";
+
+        document.getElementById("marks").innerText =
+            "Marks: " + data.marks + " / " + data.total;
+
+        document.getElementById("feedback").innerText =
+            "Feedback: " + data.feedback;
+
+        document.getElementById("resultBox").style.display = "block";
+    })
+    .catch(error => {
+        alert("Error connecting to backend");
+        console.error(error);
+    });
+}
+</script>
+
+</body>
+</html>
